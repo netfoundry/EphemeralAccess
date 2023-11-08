@@ -15,14 +15,13 @@ NETFOUNDRY_CUSTOMER_CLIENT_SECRET=os.getenv('NETFOUNDRY_CUSTOMER_CLIENT_SECRET')
 ZENDESK_API_USER=os.getenv('ZENDESK_API_USER')
 ZENDESK_API_TOKEN=os.getenv('ZENDESK_API_TOKEN')
 # NETWORK_OBJECT_IDS
-CS_LAB_NETWORK_ID="0f4dd45d-8738-4e8e-b7a9-005d683ecb07"
-ZITI_BASTION_NETWORKID = "d3b30838-1dcd-4268-9e7a-4821f58b783e"
-ZITI_BASTIONS_PREFERRED_EDGEROUTER_NAME="bastion.production.netfoundry.io"
-# ZITI_BASTIONS_PREFERRED_EDGEROUTER_ID="ea5eaac4-7fa1-4355-a611-b0744381d9cc" # ID
-ZITI_BASTIONS_PREFERRED_EDGEROUTER_ID="7baa0801-b57a-4ca0-9c15-f68aad3c6178"
-ZITI_BASTIONS_PREFERRED_EDGEROUTER_HOSTID="b21e5caf-5f91-4ec1-bced-1314bb3f5e1e"
-NFORYZ_PREFERRED_EDGEROUTER_ID="6e6a77d5-7428-45ec-bd6f-87fa049ab31b"
-CSLAB_PREFERRED_EDGEROUTER_ID="eff69be5-0730-4781-a335-2d101a7e396b"
+CS_LAB_NETWORK_ID=<CS_LAB_NETWORK_ID>
+ZITI_BASTION_NETWORKID = <ZITI_BASTION_NETWORKID>
+ZITI_BASTIONS_PREFERRED_EDGEROUTER_NAME=<ZITI_BASTIONS_PREFERRED_EDGEROUTER_NAME>
+ZITI_BASTIONS_PREFERRED_EDGEROUTER_ID=<ZITI_BASTIONS_PREFERRED_EDGEROUTER_ID>
+ZITI_BASTIONS_PREFERRED_EDGEROUTER_HOSTID=<ZITI_BASTIONS_PREFERRED_EDGEROUTER_HOSTID>
+NFORYZ_PREFERRED_EDGEROUTER_ID=<NFORYZ_PREFERRED_EDGEROUTER_ID>
+CSLAB_PREFERRED_EDGEROUTER_ID=<CSLAB_PREFERRED_EDGEROUTER_ID>
 # OBJECT_NAMES
 APPWAN_NAME = os.environ.get('APPWAN_NAME')
 APPWAN_ID=""
@@ -32,8 +31,12 @@ ENDPOINT_ATTRIBUTE_PREFIX="#ops.ssh.access.endpoint"
 SERVICE_ATTRIBUTE_PREFIX="#ops.ssh.access.service"
 # ZENDESK
 NF_ZENDESK_BASE_URL='https://netfoundry.zendesk.com'
-ZENDESK_FORM_NETWORK_FIELD_NAME="ziti_network_id"
-ZENDESK_FORM_NETWORK_FIELD_ID="18522170008973"
+ZENDESK_FORM_NETWORK_FIELD_NAME=<ZENDESK_FORM_NETWORK_FIELD_NAME>
+ZENDESK_FORM_NETWORK_FIELD_ID=<ZENDESK_FORM_NETWORK_FIELD_ID>
+
+#################
+# Test Payload
+#################
 
 incoming_json = {
   "authorization": "nf_secret_token",
@@ -43,11 +46,11 @@ incoming_json = {
       "title": "Ticket Title",
       "description": "something is broken",
       "customer_name": "CUSTOMER1",
-      "network_id": "15599fd6-881e-40ff-990a-34ba395749cb", # technilium-demo
+      "network_id": "15599fd6-881e-40ff-49cb-34ba3957990a", 49cb
       "priority": "high",
       "status": "open",
-      "requester_name": "chris walker",
-      "requester_email": "chris.walker@netfoundry.io",
+      "requester_name": "jeff morgan",
+      "requester_email": "jeff.morgan@netfoundry.io",
       "ticket_priority": "high"
   }
 }
@@ -108,38 +111,24 @@ def get_network_host_urls(bearer_token: str, network_id: str) -> []:
     return [network_host_url, controller_url, edge_router_url]
 
 
-# def get_hosts_url(bearer_token: str, network_id: str) -> str:
-#     url = 'https://gateway.production.netfoundry.io/core/v2/networks/{}'.format(network_id)
-#     headers={'Authorization': 'Bearer {}'.format(bearer_token), 'Content-Type': 'application/hal+json'}
-#     res = requests.get(url=url, headers=headers).json()
-
-#     # print('\nResponse from get_hosts_url: {}'.format(json.dumps(res, indent=4)))
-
-#     return res['_links']['hosts']['href']
-
 
 def get_hosts(bearer_token: str, network_host_url: str):
     headers={'Authorization': 'Bearer {}'.format(bearer_token), 'Content-Type': 'application/hal+json'}
     res = requests.get(url=network_host_url, headers=headers).json()
-    # print('\nHost data for network: \n{}'.format(json.dumps(res, indent=4)))
 
     host_list = res['_embedded']['hostList']
 
-    # print('\nHost List returned from get_hosts: {}'.format(json.dumps(host_list, indent=4)))
 
     host_ip_list = []
     host_dict = {}
 
     for h in host_list:
-        # print('\nHost: \n{}'.format(json.dumps(h, indent=4)))
         id = h['id']
         ip = h['ipAddress']
 
         if ip is not None:
-            # host_ip_list.append(ip)
             host_dict[id] = ip
 
-    # print('\nHOST_DICT: \n{}'.format(json.dumps(host_dict, indent=4)))
     return host_dict
 
 
@@ -182,7 +171,7 @@ def update_entity_attributes(bearer_token: str, entity_id: str, ticket_id: str, 
     print('\nUpdating entity attributes with payload: {}'.format(json.dumps(payload, indent=4)))
     res = requests.patch(url, headers=headers, data=json.dumps(payload)).json()
     print('\nResponse from updating entity attributes: {}'.format(json.dumps(res, indent=4)))
-    # res.status_code
+ 
 
 def update_entity(bearer_token: str, assignee_email: str, ticket_id: str, network_id: str, workflow: None|str):    
     # First, lookup the current entity:
@@ -190,7 +179,7 @@ def update_entity(bearer_token: str, assignee_email: str, ticket_id: str, networ
     headers={'Authorization': 'Bearer {}'.format(bearer_token), 'Content-Type': 'application/hal+json'}
     res = requests.get(url, headers=headers).json()
     endpoint_list = res['_embedded']['endpointList']
-    # print('Response from lookup_rep_entity: \n{}'.format(json.dumps(endpoint_list, indent=4)))
+ 
 
     rep_id = assignee_email.split('@')[0]
 
@@ -202,9 +191,7 @@ def update_entity(bearer_token: str, assignee_email: str, ticket_id: str, networ
     # NEXT_STEPS => Return list of one or more endpoints matching first.last or rep
     for e in endpoint_list:
         endpoint_name = e['name']
-        # print('=> {}'.format(endpoint_name))
         if rep_id in endpoint_name:
-            # print('\nFound matching entity for rep: {} => {}'.format(rep_id, endpoint_name))
             print('\nFound matching entity for rep: {} => {}: \n{}'.format(rep_id, endpoint_name, json.dumps(e, indent=4)))
             endpoint_id = e['id']
             endpoint_attributes = e['attributes']
@@ -254,7 +241,6 @@ def lookup_rep_entity(bearer_token: str, rep_email: str, network_id: str) -> lis
     headers={'Authorization': 'Bearer {}'.format(bearer_token), 'Content-Type': 'application/hal+json'}
     res = requests.get(url, headers=headers).json()
     endpoint_list = res['_embedded']['endpointList']
-    # print('Response from lookup_rep_entity: \n{}'.format(json.dumps(endpoint_list, indent=4)))
 
     rep_id = rep_email.split('@')[0]
 
@@ -266,9 +252,7 @@ def lookup_rep_entity(bearer_token: str, rep_email: str, network_id: str) -> lis
     # NEXT_STEPS => Return list of one or more endpoints matching first.last or rep
     for e in endpoint_list:
         endpoint_name = e['name']
-        # print('=> {}'.format(endpoint_name))
         if rep_id in endpoint_name:
-            # print('\nFound matching entity for rep: {} => {}'.format(rep_id, endpoint_name))
             print('\nFound matching entity for rep: {} => {}: \n{}'.format(rep_id, endpoint_name, json.dumps(e, indent=4)))
             endpoint_id = e['id']
             existing_attributes = e['attributes']
@@ -296,7 +280,6 @@ def create_service(bearer_token: str, host_id: str, host_ip: str, network_id: st
             "edgeRouterHosts": [
             {
                 "edgeRouterId": edge_router_id,
-                # "edgeRouterId": NFORYZ_PREFERRED_EDGEROUTER_ID,
                 "serverEgress": {
                 "protocol": "tcp",
                 "host": host_ip,
@@ -366,7 +349,6 @@ def appwan_exists(bearer_token: str, network_id: str) -> bool:
     url = 'https://gateway.production.netfoundry.io/core/v2/app-wans?networkId={}&page=0&size=100&sort=name,ASC'.format(network_id)
     headers={'Authorization': 'Bearer {}'.format(bearer_token), 'Content-Type': 'application/hal+json'}
     res = requests.get(url, headers=headers).json()
-    # print('AppWans: \n{}'.format(json.dumps(res, indent=4)))
 
     size = res['page']['size']
 
@@ -376,7 +358,6 @@ def appwan_exists(bearer_token: str, network_id: str) -> bool:
     appwans = res['_embedded']['appWanList']
 
     for a in appwans:
-        # print('AppWan => {}'.format(json.dumps(a, indent=4)))
         appwan_name = a['name']
         if appwan_name == APPWAN_NAME:
             print('\nFound existing AppWan.  No need to create')
@@ -480,8 +461,6 @@ def update_appwan_provision(bearer_token: str, ticket_id: str, network_id: str):
     # Call AppWan to get existing attribute list..
     res = requests.get(url, headers=headers).json()
 
-    # print('\nExisting AppWan ({}) info: {}'.format(APPWAN_ID, json.dumps(res, indent=4)))
-
     service_attributes = []
     endpoint_attributes = []
     service_attributes = res['serviceAttributes']
@@ -571,14 +550,6 @@ def update_appwan_deprovision(bearer_token: str, ticket_id: str, network_id: str
     else:
         print('\nAppWan with Id: {} does not exists. Nothing to update..'.format(APPWAN_NAME))
         return "AppWan with Id: {} does NOT exist. Nothing to update".format(APPWAN_ID)
-    
-
-# def delete_appwan(bearer_token: str):
-#     # Get appwan id
-#     url = 'https://gateway.production.netfoundry.io/core/v2/app-wans/41152db0-14cb-4134-8218-dc4ad78e68a4'
-#     headers={'Authorization': 'Bearer {}'.format(bearer_token), 'Content-Type': 'application/hal+json'}
-#     response = requests.request("DELETE", url, headers=headers)
-#     print('Delete app-wan: \n{}'.format(json.dumps(response.json(), indent=4)))
 
 
 ##################
@@ -609,7 +580,6 @@ def get_zendesk_form_field():
     headers = {'Accept': 'application/json'}
     url = '{}/api/v2/ticket_fields/{}.json'.format(NF_ZENDESK_BASE_URL, network_field_id)
     res = requests.get(url, headers=headers, auth=basic).json()
-    # print('\nResponse from calling get_zendesk_form_field(): {}'.format(json.dumps(res, indent=4)))
 
     return res
 
@@ -635,7 +605,6 @@ def update_zendesk_form_networkid_field(network_tuple_list, existing_form_field_
         # custom_field_options.append(json.dumps(custom_field_option))
         custom_field_options.append(custom_field_option)
     
-    # print('\nFinal custom field options list: {}'.format(custom_field_options))
     print('\nFinal custom field options list: ')
     for c in custom_field_options:
         print(json.dumps(c, indent=4))
@@ -654,16 +623,6 @@ def update_zendesk_form_networkid_field(network_tuple_list, existing_form_field_
     print('\nResponse (status: {}) from updating ZenDesk form fields for customer network ids: {}'.format(res.status_code, json.dumps(res.json(), indent=4)))
 
 
-# def zendesk_main():
-#     # get_zendesk_form_field()
-#     zitibastions_bearer_token = get_console_bearer_token(NETFOUNDRY_CUSTOMER_CLIENT_ID, NETFOUNDRY_CUSTOMER_CLIENT_SECRET)
-#     network_tuple_list = list_networks(bearer_token=zitibastions_bearer_token)
-#     existing_form_field_data = get_zendesk_form_field()
-#     print('\nResponse from get_zendesk_form_field(): Type: {}; Value: {}'.format(type(existing_form_field_data), json.dumps(existing_form_field_data, indent=4)))
-#     update_zendesk_form_networkid_field(network_tuple_list, existing_form_field_data)
-
-# zendesk_main()
-# exit()
 
 
 
